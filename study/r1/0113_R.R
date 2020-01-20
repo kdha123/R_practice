@@ -79,7 +79,7 @@ table(mpg$drv)
 ggplot(data = mpg,aes(x=drv))+geom_bar()
 
 # 데이터 분석 절차 : 변수검토 및 전처리 -> 변수간의 관계분석-------------
-install.packages('foreign')
+# install.packages('foreign')
 library(foreign)
 df <- read.spss(file='Koweps_hpc10_2015_beta1.sav', to.data.frame = T)
 View(df)
@@ -174,21 +174,35 @@ ggplot(data=top10,aes(x=job,y=avg_income))+geom_col()+coord_flip()
 bottom10<-job_income %>% arrange(desc(avg_income)) %>% tail(10)
 ggplot(data=bottom10,aes(x=job,y=avg_income))+geom_col()+coord_flip()
 
+
 # 성별 직업 빈도
 df %>% filter(!is.na(job) & sex2=='남자') %>%
   group_by(job) %>% 
   summarise(cnt=n())
 
-
-
-
-
-
-
-
-
-
-
+# ------------종교 유무에 따른 이혼율
+head(df)
+table(df$religion)
+summary(df$religion)
+df$religion2 <- ifelse(df$religion==1,'종교유','종교무')
+summary(df$marriage)
+table(df$marriage)
+df$marriage2 <- ifelse(df$marriage==1,'결혼',ifelse(df$marriage==3, '이혼',NA))
+table(df$marriage2)
+summary(df$marriage2)
+religion_marriage <- df %>%
+                      filter(!is.na(marriage2)) %>%
+                      group_by(religion2, marriage2) %>%
+                      summarise(cnt = n()) %>%
+                      mutate(hap = sum(cnt)) %>%
+                      mutate(pct = round((cnt/hap)*100,1))
+religion_marriage
+divorce <- religion_marriage %>%
+  filter(marriage2=='이혼') %>%
+  select(religion2, pct)
+divorce
+library(ggplot2)
+ggplot(data = divorce, aes(x = religion2, y = pct))+geom_col()
 
 
 

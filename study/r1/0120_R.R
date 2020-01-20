@@ -24,3 +24,37 @@ result<-rawToChar(result$content) # 아직 utf-8은 아님
 result
 Encoding(result)<- 'UTF-8'
 result
+
+#gsub(패턴, 변환 후 문자열, 변환할 문자열, ignore.case)
+result <- gsub('[[:punct:]]','',result)
+result <- gsub('[a-zA-Z]','',result)
+result <- gsub('[0-9]','', result)
+result <- gsub(' +',' ', result)
+
+install.packages('KoNLP')
+install.packages('rJava')
+install.packages('memoise')
+library(KoNLP)
+useSejongDic()
+n <- extractNoun("대한민국의 영토는 한반도와 그 부속도서로 한다")
+str(n)
+#------------------------------
+n <- extractNoun(result)
+n
+# 제외 단어 지정
+outword <- c('설날','한')
+n<- n[!n %in% outword]
+wordcount <- sort(table(unlist(n)),decreasing = T)[1:50]
+wordcount
+
+install.packages('wordcloud2')
+library(wordcloud2)
+set.seed(1234)
+wordcloud2(wordcount, shape = 'pentagon', size = 1)
+wordcloud2(wordcount, size = 0.7)
+
+
+
+
+
+
